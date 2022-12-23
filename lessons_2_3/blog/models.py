@@ -131,14 +131,13 @@ class Comment(models.Model):
 class LikeManager(models.Manager):
     def create_or_delete(self, **kwargs):
         obj = kwargs.pop('obj')
-        filters = Q(post__id=obj.id) | Q(comment__id=obj.id)
-        like = Like.objects.filter(filters, **kwargs)
+        user = kwargs.pop('user')
+        like = obj.likes.filter(user=user)
         if like.exists():
             like.delete()
             return False
-        else:
-            like = Like.objects.create(content_object=obj, **kwargs)
-            return True
+        Like.objects.create(user=user, content_object=obj)
+        return True
 
 
 class Like(models.Model):

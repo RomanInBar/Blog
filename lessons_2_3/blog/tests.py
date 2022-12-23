@@ -397,7 +397,7 @@ class TestBlogApp(TestCase):
         self.assertEqual(self.p.total_likes, likes + 1)
         response = self.user.get(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(self.p.total_likes, likes)
+        self.assertEqual(self.p.total_likes, likes )
 
     def test_like_for_comment(self):
         """Тест системы лайков к комменту."""
