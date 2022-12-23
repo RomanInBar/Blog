@@ -13,12 +13,13 @@ class TestBlogApp(TestCase):
     def setUpTestData(cls):
         """Создание объектов на уровне класса."""
         cls.u = User.objects.create_user(
-            username='Bob', email='bob@mail.ru', password='3897fuh32847n'
+            username='Bob', email='bob@mail.ru', password='3897fuh32847n', is_active=True
         )
         cls.o = User.objects.create_user(
             username='other',
             email='other@mail.ru',
             password='iewuhdgv538702hgv',
+            is_active=True
         )
         cls.p = Post.objects.create(
             author=cls.u, title='Post', text='Some text of post'

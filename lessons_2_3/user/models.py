@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 from django.urls import reverse
+import uuid
 
 
 class User(AbstractUser):
@@ -16,6 +17,9 @@ class User(AbstractUser):
     updated = models.DateTimeField(
         auto_now=True, verbose_name='Дата последнего обновления'
     )
+    is_active = models.BooleanField(default=False, verbose_name='Активация')
+    is_verified = models.BooleanField(default=False, verbose_name='Проверено')
+    verification_uuid = models.UUIDField(default=uuid.uuid4, verbose_name='Код подтверждения')
     objects = UserManager()
 
     class Meta:

@@ -12,10 +12,10 @@ class APIUserTests(APITestCase):
     def setUpTestData(cls):
         """Создание объектов модели User на уровне класса."""
         cls.u = User.objects.create_user(
-            username='user', password='user12', email='user@mail.ru'
+            username='user', password='user12', email='user@mail.ru', is_active=True
         )
         cls.o = User.objects.create_user(
-            username='other', password='other12', email='other@mail.ru'
+            username='other', password='other12', email='other@mail.ru', is_active=True
         )
 
     def setUp(self):
@@ -111,10 +111,10 @@ class APIPostTests(APITestCase):
     def setUpTestData(cls):
         """Создание объектов на уровне класса."""
         cls.u = User.objects.create_user(
-            username='user', password='user12', email='user@mail.ru'
+            username='user', password='user12', email='user@mail.ru', is_active=True
         )
         cls.o = User.objects.create_user(
-            username='other', password='other12', email='other@mail.ru'
+            username='other', password='other12', email='other@mail.ru', is_active=True
         )
         cls.p = Post.objects.create(
             author=cls.u, title='test', text='some text'

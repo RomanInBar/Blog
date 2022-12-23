@@ -1,4 +1,5 @@
 from datetime import datetime
+import uuid
 
 from django.contrib.auth.forms import AuthenticationForm
 from django.core import mail
@@ -16,16 +17,15 @@ class TestUser(TestCase):
     def setUpTestData(cls):
         """Создание объектов модели User на уровне класса."""
         cls.u = User.objects.create_user(
-            username='Bob', password='3098vuhg39v', email='bob@mail.ru'
+            username='Bob', password='3098vuhg39v', email='bob@mail.ru', is_active=True
         )
         cls.o = User.objects.create_user(
-            username='other', password='392u7vb023u8b', email='other@mail.ru'
+            username='other', password='392u7vb023u8b', email='other@mail.ru', is_active=True
         )
         cls.d = User.objects.create_user(
             username='delete',
             password='39vurb320v',
             email='delete@mail.ru',
-            is_active=False,
             last_login=datetime.now(),
         )
 
@@ -46,16 +46,22 @@ class TestUser(TestCase):
             },
             follow=True,
         )
-        self.assertEqual(response_post.status_code, status.HTTP_200_OK)
-        self.assertIsInstance(
-            response_post.context['form'], AuthenticationForm
-        )
+        user = User.objects.get(username='Rob')
+        link = reverse('user:activate', kwargs={'uuid': user.verification_uuid})
+        self.assertEqual(response_post.status_code, status.HTTP_201_CREATED)
         self.assertNotEqual(User.objects.all().count(), count_urs)
-        self.assertTemplateUsed(response_post, 'registration/login.html')
-        self.assertRedirects(response_post, '/account/login/')
+        self.assertFalse(user.is_active)
         self.assertEqual(response_get.status_code, status.HTTP_200_OK)
         self.assertIsInstance(response_get.context['form'], UserCreateForm)
         self.assertTemplateUsed(response_get, 'signup.html')
+        rob = Client()
+        rob.force_login(user)
+        response = rob.get(link, follow=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertRedirects(response, reverse('login'), status_code=302)
+        self.assertTemplateUsed(response, 'registration/login.html')
+        self.assertTrue(response.context['user'].is_active)
+
 
     def test_login(self):
         """Тест аутентификации пользователя."""
@@ -150,7 +156,7 @@ class TestUser(TestCase):
         data = {'email': self.d.email}
         link = reverse(
             'user:activate',
-            kwargs={'username': self.d.username, 'email': self.d.email},
+            kwargs={'uuid': self.d.verification_uuid},
         )
         response = self.delete.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -159,7 +165,7 @@ class TestUser(TestCase):
         response = self.delete.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].subject, 'Восстановление страницы')
+        self.assertEqual(mail.outbox[0].subject, 'Активация страницы')
         response = self.delete.get(link, follow=True)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.context['user'].is_active)
@@ -181,13 +187,13 @@ class TestFollow(TestCase):
     def setUpTestData(cls):
         """Создание объектов модели User на уровне класса."""
         cls.u = User.objects.create_user(
-            username='Bob', password='3098vuhg39v', email='bob@mail.ru'
+            username='Bob', password='3098vuhg39v', email='bob@mail.ru', is_active=True
         )
         cls.o = User.objects.create_user(
-            username='other', password='392u7vb023u8b', email='other@mail.ru'
+            username='other', password='392u7vb023u8b', email='other@mail.ru', is_active=True
         )
         cls.s = User.objects.create_user(
-            username='Second', password='9q2ubv9u4v', email='second@mail.ru'
+            username='Second', password='9q2ubv9u4v', email='second@mail.ru', is_active=True
         )
 
     def setUp(self):

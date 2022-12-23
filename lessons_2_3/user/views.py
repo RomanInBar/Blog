@@ -15,16 +15,16 @@ def RecoveryView(request):
         form = RecoveryForm(data=request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
-            if send_message(email):
+            if send_message(email, action='recovery'):
                 return HttpResponse(status=status.HTTP_200_OK)
             return HttpResponse(status=status.HTTP_204_NO_CONTENT)
     form = RecoveryForm()
     return render(request, 'recovery.html', {'form': form})
 
 
-def activate(request, username, email):
+def activate(request, uuid):
     """Активирует профиль."""
-    user = get_object_or_404(User, username=username, email=email)
+    user = get_object_or_404(User, verification_uuid=uuid)
     user.is_active = True
     user.save(update_fields=['is_active'])
     return redirect('login')
@@ -47,8 +47,10 @@ def SignUpView(request):
     if request.method == 'POST':
         form = UserCreateForm(data=request.POST)
         if form.is_valid():
+            email = form.cleaned_data['email']
             form.save()
-            return redirect('login')
+            send_message(email, action='signup')
+            return HttpResponse(status=status.HTTP_201_CREATED)
     form = UserCreateForm()
     return render(request, 'signup.html', {'form': form})
 

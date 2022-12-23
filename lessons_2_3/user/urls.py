@@ -19,7 +19,7 @@ urlpatterns = [
     ),
     path('recovery/', views.RecoveryView, name='recovery'),
     path(
-        'activate/<str:username>/<str:email>/', views.activate, name='activate'
+        'activate/<uuid:uuid>/', views.activate, name='activate'
     ),
     path('follow/<int:pk>/', views.FollowView, name='follow'),
     path('like/<int:pk>/', views.RatingView, name='rating'),
