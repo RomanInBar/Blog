@@ -1,0 +1,152 @@
+html {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+header {
+    flex: 0 0 auto;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+footer {
+    flex: 0 0 auto;
+}
+
+.nav-item {
+    padding-left: 50px;
+    font-size: 20px;
+}
+
+.me-auto {
+    margin-left: 100px;
+}
+
+.right_bar {
+    width: 400px;
+    right: 10px;
+    position: absolute;
+    padding-top: 128px;
+}
+
+.profile {
+    font-size: 20px;
+    padding-right: 100px;
+}
+
+.comments_window {
+    height: 400px;
+    overflow-y: scroll;
+}
+
+.comment {
+    border-color: #70d774f0;
+    border-style: solid;
+}
+
+.class_for_time {
+    font-size: 12px;
+}
+
+#window {
+    width: 300px;
+    margin-left: 50%;
+    text-align: center;
+    padding: 15px;
+    border: 3px solid #0000cc;
+    border-radius: 10px;
+    color: #0000cc;
+    display: none;
+  }
+
+  #window:target {display: block;}
+
+.login_w {
+    margin: 100px 0px 0px 65%;
+    border-style: outset;
+    height: auto;
+    width: 300px;
+}
+
+.signup_w {
+    margin-left: 55%;
+    border-style: outset;
+    height: auto;
+    width: auto;
+}
+
+.nice-text {
+    color: white;
+    text-shadow: 0 0 5px white, 0 0 10px white, 0 0 15px white, 0 0 20px crimson, 0 0 35px crimson, 0 0 40px crimson, 0 0 50px crimson, 0 0 75px crimson;
+  }
+
+#login label, #signup label, #pass_reset label, #reset_form label {
+    font-size: larger;
+    font-style: italic;
+}
+
+.pass_win {
+    border-style: outset;
+    height: 100%;
+    width: 499px;
+    margin-left: 60%;
+}
+
+#pass_reset h1, #reset_form h1 {
+    padding-top: 50px;
+    text-align: center;
+    margin-bottom: 100px;
+}
+
+#pass_reset p {
+    text-align: center;
+    font-size: larger;
+    margin-bottom: 40px;
+}
+
+.center {
+    width: 400px;
+    height: 450px;
+    margin-top: 50px;
+    left: 50%;
+}
+
+.main-container {
+    padding: 30px;
+}
+
+.card_m {
+    margin: 20px;
+    padding: 20px;
+    width: 500px;
+    min-height: 200px;
+    display: grid;
+    grid-template-rows: 20px 50px 1fr 50px;
+    border-radius: 10px;
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.25);
+    transition: all 0.2s;
+}
+
+.card_m:hover {
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.4);
+    transform: scale(1.01);
+}
+
+.card_m-1 {
+    background: radial-gradient(#1fe4f5, #3fbafe);
+    margin-left: 55%;
+}
+
+.card_m__title {
+    grid-row: 3/4;
+    font-weight: 400;
+    color: #ffffff;
+}
+
