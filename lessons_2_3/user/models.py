@@ -1,7 +1,8 @@
+import uuid
+
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 from django.urls import reverse
-import uuid
 
 
 class User(AbstractUser):
@@ -19,7 +20,9 @@ class User(AbstractUser):
     )
     is_active = models.BooleanField(default=False, verbose_name='Активация')
     is_verified = models.BooleanField(default=False, verbose_name='Проверено')
-    verification_uuid = models.UUIDField(default=uuid.uuid4, verbose_name='Код подтверждения')
+    verification_uuid = models.UUIDField(
+        default=uuid.uuid4, verbose_name='Код подтверждения'
+    )
     objects = UserManager()
 
     class Meta:
@@ -28,6 +31,7 @@ class User(AbstractUser):
         verbose_name_plural = 'Пользователи'
 
     def get_absolute_url(self):
+        """Запрос абсолютного адреса объекта."""
         return reverse('blog:home', args=[str(self.username)])
 
     def __str__(self) -> str:

@@ -4,7 +4,6 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from rest_framework import status
 from taggit.models import Tag
-from user.models import User
 
 from .forms import CommentCreateForm, PostCreateForm
 from .models import Comment, Like, Post
@@ -25,16 +24,15 @@ def index(request):
 @login_required(login_url='login')
 def UserPostListView(request, username):
     """Представление всех постов пользователя на главной странице."""
-    user = request.user
-    author = get_object_or_404(User, username=username)
-    posts = author.posts.filter(status='published')
-    posts_count = posts.count()
+    posts = (
+        Post.objects.filter(status='published', author__username=username)
+        .select_related('author')
+        .all()
+    )
     posts, page = pagination(request, posts, 3)
     context = {
         'posts': posts,
-        'posts_count': posts_count,
-        'author': author,
-        'user': user,
+        'user': request.user,
         'page': page,
     }
     return render(request, 'home.html', context)
@@ -50,27 +48,16 @@ def PostTagListView(request, tag):
 
 
 def PostDetailView(request, pk):
-    """
-    Представление отдельного поста с комментариями, и постов с похожими
-    тегами.
-    """
+    """Представление отдельного поста с комментариями."""
     post = get_object_or_404(Post, id=pk)
-    images = [converter(image.image) for image in post.images.all()]
-    comments = post.post_comments.filter(status='published')
+    images = [converter(image.image) for image in post.images.all()]  # type: ignore # noqa: E501
+    comments = post.post_comments.filter(status='published')  # type: ignore # noqa: E501
     form = CommentCreateForm()
-    post_tags_ids = post.tags.values_list('id', flat=True)
-    similar_posts = Post.objects.filter(
-        tags__in=post_tags_ids, status='published'
-    ).exclude(id=post.id)
-    similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by(
-        '-same_tags', '-created'
-    )[:5]
     context = {
         'post': post,
         'images': images,
         'form': form,
         'comments': comments,
-        'similar_posts': similar_posts,
     }
     return render(request, 'post/post_detail.html', context)
 
@@ -98,7 +85,7 @@ def PostUpdateView(request, pk):
         form = PostCreateForm(data=request.POST, instance=post)
         if form.is_valid():
             form.save()
-            return redirect('blog:post_detail', post.id)
+            return redirect('blog:post_detail', post.id)  # type: ignore # noqa: E501
     form = PostCreateForm(instance=post)
     return render(
         request, 'post/post_update.html', {'form': form, 'post': post}
@@ -141,7 +128,7 @@ def CommentUpdateView(request, pk):
         form = CommentCreateForm(data=request.POST, instance=comment)
         if form.is_valid():
             form.save()
-            return redirect('blog:post_detail', comment.post.id)
+            return redirect('blog:post_detail', comment.post.id)  # type: ignore # noqa: E501
     else:
         form = CommentCreateForm(instance=comment)
     context = {
@@ -157,7 +144,7 @@ def CommentDeleteView(request, pk):
     if request.user == comment.author:
         comment.status = 'hidden'
         comment.save(update_fields=['status'])
-    return redirect('blog:post_detail', comment.post.id)
+    return redirect('blog:post_detail', comment.post.id)  # type: ignore # noqa: E501
 
 
 @login_required(login_url='login')

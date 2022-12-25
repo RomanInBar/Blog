@@ -17,7 +17,9 @@ def send_message(email, action):
     """Отправка сообщения пользователю."""
     user = get_object_or_404(User, email=email)
     if isinstance(user, User):
-        link = reverse('user:activate', kwargs={'uuid': str(user.verification_uuid)})
+        link = reverse(
+            'user:activate', kwargs={'uuid': str(user.verification_uuid)}
+        )
         if action == 'recovery':
             if recovery(user):
                 global message
@@ -41,13 +43,14 @@ def send_message(email, action):
                 )
         elif action == 'signup':
             message = (
-                f'Регистрация прошла успешно, пожалуйста, перейдите по ссылке: {link}'
+                'Регистрация прошла успешно, пожалуйста, '
+                f'перейдите по ссылке: {link}'
             )
         send_mail(
-                subject='Активация страницы',
-                message=message,
-                from_email='admin@mail.ru',
-                recipient_list=[email],
-            )
+            subject='Активация страницы',
+            message=message,
+            from_email='admin@mail.ru',
+            recipient_list=[email],
+        )
         return True
     return False

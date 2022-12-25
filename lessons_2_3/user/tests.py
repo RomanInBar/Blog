@@ -1,5 +1,4 @@
 from datetime import datetime
-import uuid
 
 from django.contrib.auth.forms import AuthenticationForm
 from django.core import mail
@@ -17,10 +16,16 @@ class TestUser(TestCase):
     def setUpTestData(cls):
         """Создание объектов модели User на уровне класса."""
         cls.u = User.objects.create_user(
-            username='Bob', password='3098vuhg39v', email='bob@mail.ru', is_active=True
+            username='Bob',
+            password='3098vuhg39v',
+            email='bob@mail.ru',
+            is_active=True,
         )
         cls.o = User.objects.create_user(
-            username='other', password='392u7vb023u8b', email='other@mail.ru', is_active=True
+            username='other',
+            password='392u7vb023u8b',
+            email='other@mail.ru',
+            is_active=True,
         )
         cls.d = User.objects.create_user(
             username='delete',
@@ -47,7 +52,9 @@ class TestUser(TestCase):
             follow=True,
         )
         user = User.objects.get(username='Rob')
-        link = reverse('user:activate', kwargs={'uuid': user.verification_uuid})
+        link = reverse(
+            'user:activate', kwargs={'uuid': user.verification_uuid}
+        )
         self.assertEqual(response_post.status_code, status.HTTP_201_CREATED)
         self.assertNotEqual(User.objects.all().count(), count_urs)
         self.assertFalse(user.is_active)
@@ -61,7 +68,6 @@ class TestUser(TestCase):
         self.assertRedirects(response, reverse('login'), status_code=302)
         self.assertTemplateUsed(response, 'registration/login.html')
         self.assertTrue(response.context['user'].is_active)
-
 
     def test_login(self):
         """Тест аутентификации пользователя."""
@@ -187,13 +193,22 @@ class TestFollow(TestCase):
     def setUpTestData(cls):
         """Создание объектов модели User на уровне класса."""
         cls.u = User.objects.create_user(
-            username='Bob', password='3098vuhg39v', email='bob@mail.ru', is_active=True
+            username='Bob',
+            password='3098vuhg39v',
+            email='bob@mail.ru',
+            is_active=True,
         )
         cls.o = User.objects.create_user(
-            username='other', password='392u7vb023u8b', email='other@mail.ru', is_active=True
+            username='other',
+            password='392u7vb023u8b',
+            email='other@mail.ru',
+            is_active=True,
         )
         cls.s = User.objects.create_user(
-            username='Second', password='9q2ubv9u4v', email='second@mail.ru', is_active=True
+            username='Second',
+            password='9q2ubv9u4v',
+            email='second@mail.ru',
+            is_active=True,
         )
 
     def setUp(self):

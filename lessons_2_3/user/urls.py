@@ -18,9 +18,7 @@ urlpatterns = [
         name='delete_user',
     ),
     path('recovery/', views.RecoveryView, name='recovery'),
-    path(
-        'activate/<uuid:uuid>/', views.activate, name='activate'
-    ),
+    path('activate/<uuid:uuid>/', views.activate, name='activate'),
     path('follow/<int:pk>/', views.FollowView, name='follow'),
     path('like/<int:pk>/', views.RatingView, name='rating'),
     path('top/', views.TopAuthorsView, name='top_authors'),

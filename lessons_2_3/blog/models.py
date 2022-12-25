@@ -4,7 +4,7 @@ from django.contrib.contenttypes.fields import (
 )
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models import Q
+from django.db.models import Count
 from django.urls import reverse
 from taggit.managers import TaggableManager
 from user.models import User
@@ -47,10 +47,12 @@ class Post(models.Model):
         return self.likes.count()
 
     def get_absolute_url(self):
-        return reverse('post_detail', args=[str(self.id)])
+        """Запрос абсолютного адреса объекта."""
+        return reverse('blog:post_detail', args=[str(self.id)])  # type: ignore # noqa: E501
 
-    def get_publish_comments(self) -> str:
-        total = self.post_comments.filter(status='published').count()
+    def get_publish_comments(self):
+        """Запрос опубликованных комментариев к объекту."""
+        total = self.post_comments.filter(status='published').count()  # type: ignore # noqa: E501
         exists = [11, 12, 13, 14]
         if total % 10 == 1 and total % 100 not in exists:
             return f'{ total} Комментарий'
@@ -60,7 +62,21 @@ class Post(models.Model):
             return f'{total} Комментариев'
 
     def post_updated(self) -> bool:
+        """Подтверждение обновления объекта."""
         return self.created != self.updated
+
+    def similar_posts(self):
+        """Запрос схожих постов по тегам."""
+        post_tags_ids = self.tags.values_list('id', flat=True)
+        similar_posts = Post.objects.filter(
+            tags__in=post_tags_ids, status='published'
+        ).exclude(
+            id=self.id  # type: ignore
+        )
+        similar_posts = similar_posts.annotate(
+            same_tags=Count('tags')
+        ).order_by('-same_tags', '-created')[:5]
+        return similar_posts
 
     def __str__(self) -> str:
         return f'{self.author.username}: {self.title}'
@@ -122,6 +138,7 @@ class Comment(models.Model):
         return self.likes.count()
 
     def comment_updated(self):
+        """Подтверждение обновления объекта."""
         return self.created != self.updated
 
     def __str__(self):
@@ -130,6 +147,7 @@ class Comment(models.Model):
 
 class LikeManager(models.Manager):
     def create_or_delete(self, **kwargs):
+        """Создаёт объект, или удаляет, если таковой уже есть в базе данных."""
         obj = kwargs.pop('obj')
         user = kwargs.pop('user')
         like = obj.likes.filter(user=user)
