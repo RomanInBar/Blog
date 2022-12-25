@@ -114,9 +114,7 @@ def CommentCreateView(request, pk):
             comment.save()
             return redirect('blog:post_detail', pk)
     form = CommentCreateForm()
-    context = {
-        'form': form,
-    }
+    context = {'form': form}
     return render(request, 'post/post_detail.html', context)
 
 
@@ -131,9 +129,7 @@ def CommentUpdateView(request, pk):
             return redirect('blog:post_detail', comment.post.id)  # type: ignore # noqa: E501
     else:
         form = CommentCreateForm(instance=comment)
-    context = {
-        'form': form,
-    }
+    context = {'form': form}
     return render(request, 'post/post_detail.html', context)
 
 

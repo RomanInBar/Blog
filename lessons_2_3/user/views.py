@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from rest_framework import status
 
-from .forms import EditProfileForm, RecoveryForm, UserCreateForm
+from .forms import RecoveryForm, UserCreateUpdateForm
 from .models import Follow, Rating, User
 from .utils import send_message
 
@@ -35,7 +35,6 @@ def DeleteProfileView(request, username):
     """Деактивирует профиль пользователя."""
     user = get_object_or_404(User, username=username)
     if request.user == user:
-        user = get_object_or_404(User, username=username)
         user.is_active = False
         user.save(update_fields=['is_active'])
         return redirect('blog:index')
@@ -45,13 +44,13 @@ def DeleteProfileView(request, username):
 def SignUpView(request):
     """Регистрирует нового пользователя."""
     if request.method == 'POST':
-        form = UserCreateForm(data=request.POST)
+        form = UserCreateUpdateForm(data=request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
             form.save()
             send_message(email, action='signup')
             return HttpResponse(status=status.HTTP_201_CREATED)
-    form = UserCreateForm()
+    form = UserCreateUpdateForm()
     return render(request, 'signup.html', {'form': form})
 
 
@@ -59,15 +58,15 @@ def SignUpView(request):
 def UpdateProfileView(request, username):
     """Редактирует данные профиля пользователя."""
     user = get_object_or_404(User, username=username)
-    if request.user == user:
-        if request.method == 'POST':
-            form = EditProfileForm(request.POST, instance=user)
-            if form.is_valid():
-                form.save()
-                return redirect('user:profile', user.username)
-        form = EditProfileForm(instance=user)
-        return render(request, 'edit_profile.html', {'form': form})
-    return redirect('user:edit_profile', request.user.username)
+    if request.user != user:
+        return redirect('user:edit_profile', request.user.username)
+    if request.method == 'POST':
+        form = UserCreateUpdateForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('user:profile', user.username)
+    form = UserCreateUpdateForm(instance=user)
+    return render(request, 'edit_profile.html', {'form': form})
 
 
 @login_required(login_url='login')

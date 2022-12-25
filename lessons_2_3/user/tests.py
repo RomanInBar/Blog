@@ -7,7 +7,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 from rest_framework import status
 
-from .forms import EditProfileForm, RecoveryForm, UserCreateForm
+from .forms import UserCreateUpdateForm, RecoveryForm
 from .models import Rating, User
 
 
@@ -59,7 +59,9 @@ class TestUser(TestCase):
         self.assertNotEqual(User.objects.all().count(), count_urs)
         self.assertFalse(user.is_active)
         self.assertEqual(response_get.status_code, status.HTTP_200_OK)
-        self.assertIsInstance(response_get.context['form'], UserCreateForm)
+        self.assertIsInstance(
+            response_get.context['form'], UserCreateUpdateForm
+        )
         self.assertTemplateUsed(response_get, 'signup.html')
         rob = Client()
         rob.force_login(user)
@@ -120,17 +122,19 @@ class TestUser(TestCase):
             'first_name': 'Robert',
             'last_name': 'Mobson',
         }
-        response_user_get = self.user.get(url, data)
+        response_user_get = self.user.get(url)
         response_user_post = self.user.post(url, data, follow=True)
         response_other = self.other.get(
             reverse('user:edit_profile', kwargs={'username': self.d.username}),
             follow=True,
         )
+        # GET request of authenticated user
         self.assertEqual(response_user_get.status_code, status.HTTP_200_OK)
         self.assertIsInstance(
-            response_user_get.context['form'], EditProfileForm
+            response_user_get.context['form'], UserCreateUpdateForm
         )
         self.assertTemplateUsed(response_user_get, 'edit_profile.html')
+        # POST request of authenticated user
         self.assertEqual(response_user_post.status_code, status.HTTP_200_OK)
         self.assertEqual(response_user_post.context['user'], self.u)
         self.assertRedirects(
@@ -139,6 +143,7 @@ class TestUser(TestCase):
             status_code=302,
         )
         self.assertTemplateUsed(response_user_post, 'profile.html')
+        # POST request of authenticated other user
         self.assertEqual(response_other.status_code, status.HTTP_200_OK)
         self.assertRedirects(
             response_other,

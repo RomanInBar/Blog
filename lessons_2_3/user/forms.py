@@ -1,27 +1,24 @@
 from django import forms
-from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm
-
-User = get_user_model()
+from .models import User
 
 
-class UserCreateForm(UserCreationForm):
-    """Форма для регистрации."""
+class UserCreateUpdateForm(forms.ModelForm):
+    """Форма для регистрации, обновления пользователя."""
 
     class Meta:
         model = User
         fields = ('email', 'username', 'first_name', 'last_name')
-
-
-class EditProfileForm(forms.ModelForm):
-    """Форма для обновления данных профиля."""
-
-    class Meta:
-        model = User
-        fields = ('email', 'username', 'first_name', 'last_name')
+        widgets = {
+            'email': forms.EmailInput(attrs={'placeholder': 'Почта'}),
+            'username': forms.TextInput(attrs={'placeholder': 'Логин'}),
+            'first_name': forms.TextInput(attrs={'placeholder': 'Имя'}),
+            'last_name': forms.TextInput(attrs={'placeholder': 'Фамилия'}),
+        }
 
 
 class RecoveryForm(forms.Form):
     """Форма для восстановления профиля."""
 
-    email = forms.EmailField(label='Почта', widget=forms.EmailInput)
+    email = forms.EmailField(
+        label='Почта', widget=forms.EmailInput(attrs={'placeholder': 'Почта'})
+    )
