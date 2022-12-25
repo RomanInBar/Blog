@@ -54,6 +54,7 @@ class PostViewSet(viewsets.ModelViewSet):
         permission_classes=(PostCommentPermisson,),
     )
     def my(self, request):
+        """Запрос постов пользователя."""
         posts = Post.objects.filter(author=request.user)
         serializer = self.get_serializer(posts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -67,6 +68,7 @@ class PostViewSet(viewsets.ModelViewSet):
         serializer_class=CommentSerialiser,
     )
     def comments(self, request, pk):
+        """Запрос комментариев поста."""
         comments = Comment.objects.filter(post=pk)
         serializer = self.get_serializer(comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -12,10 +12,16 @@ class APIUserTests(APITestCase):
     def setUpTestData(cls):
         """Создание объектов модели User на уровне класса."""
         cls.u = User.objects.create_user(
-            username='user', password='user12', email='user@mail.ru', is_active=True
+            username='user',
+            password='user12',
+            email='user@mail.ru',
+            is_active=True,
         )
         cls.o = User.objects.create_user(
-            username='other', password='other12', email='other@mail.ru', is_active=True
+            username='other',
+            password='other12',
+            email='other@mail.ru',
+            is_active=True,
         )
 
     def setUp(self):
@@ -30,9 +36,9 @@ class APIUserTests(APITestCase):
         url = '/api/auth/jwt/create/'
         data = {"username": "user", "password": "user12"}
         response = self.user.post(url, data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data['access'])
-        self.assertTrue(response.data['refresh'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)  # type: ignore # noqa: E501
+        self.assertTrue(response.data['access'])  # type: ignore # noqa: E501
+        self.assertTrue(response.data['refresh'])  # type: ignore # noqa: E501
 
     def test_create_user(self):
         """Создание нового пользователя."""
@@ -46,7 +52,7 @@ class APIUserTests(APITestCase):
         response = self.client.post(url, data)
         serializer = UserSerializer(User.objects.first()).data
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data, serializer)
+        self.assertEqual(response.data, serializer)  # type: ignore # noqa: E501
         self.assertNotEqual(User.objects.count(), users)
 
     def test_get_all_users(self):
@@ -58,42 +64,42 @@ class APIUserTests(APITestCase):
         # Request of anonym client
         self.assertEqual(client_req.status_code, status.HTTP_401_UNAUTHORIZED)
         # Request of authenticated user
-        self.assertEqual(auth_req.status_code, status.HTTP_200_OK)
-        self.assertEqual(auth_req.data, serializer)
+        self.assertEqual(auth_req.status_code, status.HTTP_200_OK)  # type: ignore # noqa: E501
+        self.assertEqual(auth_req.data, serializer)  # type: ignore # noqa: E501
 
     def test_get_my_profile(self):
         """Запрос данных своего профиля."""
         url = '/api/auth/users/me/'
         serializer = DjoserUserSerializer(self.u).data
         response = self.user.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertDictEqual(response.data, serializer)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)  # type: ignore # noqa: E501
+        self.assertDictEqual(response.data, serializer)  # type: ignore # noqa: E501
 
     def test_get_some_user(self):
         """Запрос данных пользователя по id."""
         url = f'/api/users/{self.u.id}/'
         serializer = UserSerializer(self.u).data
         response = self.user.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertDictEqual(response.data, serializer)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)  # type: ignore # noqa: E501
+        self.assertDictEqual(response.data, serializer)  # type: ignore # noqa: E501
 
     def test_update_profile(self):
         """Обновление данных своего профиля."""
         url = f'/api/users/{self.u.id}/'
         response = self.user.patch(url, data={"username": "updated"})
         permisson = self.other.patch(url, data={"username": "other"})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['username'], 'updated')
-        self.assertEqual(permisson.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)  # type: ignore # noqa: E501
+        self.assertEqual(response.data['username'], 'updated')  # type: ignore # noqa: E501
+        self.assertEqual(permisson.status_code, status.HTTP_403_FORBIDDEN)  # type: ignore # noqa: E501
 
     def test_delete_profile(self):
         """Удаление своего профиля."""
         url = f'/api/users/{self.u.id}/'
         response = self.user.delete(url)
         permission = self.other.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)  # type: ignore # noqa: E501
         self.assertFalse(User.objects.get(id=self.u.id).is_active)
-        self.assertEqual(permission.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(permission.status_code, status.HTTP_403_FORBIDDEN)  # type: ignore # noqa: E501
 
     def test_filter_for_users_by_is_active(self):
         """Фильтрация объектов пользователей по полю is_active."""
@@ -102,8 +108,8 @@ class APIUserTests(APITestCase):
             User.objects.filter(is_active=True), many=True
         ).data
         response = self.user.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, serializer)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)  # type: ignore # noqa: E501
+        self.assertEqual(response.data, serializer)  # type: ignore # noqa: E501
 
 
 class APIPostTests(APITestCase):
@@ -111,10 +117,16 @@ class APIPostTests(APITestCase):
     def setUpTestData(cls):
         """Создание объектов на уровне класса."""
         cls.u = User.objects.create_user(
-            username='user', password='user12', email='user@mail.ru', is_active=True
+            username='user',
+            password='user12',
+            email='user@mail.ru',
+            is_active=True,
         )
         cls.o = User.objects.create_user(
-            username='other', password='other12', email='other@mail.ru', is_active=True
+            username='other',
+            password='other12',
+            email='other@mail.ru',
+            is_active=True,
         )
         cls.p = Post.objects.create(
             author=cls.u, title='test', text='some text'
@@ -146,16 +158,16 @@ class APIPostTests(APITestCase):
         url = '/api/posts/'
         serializer = PostSerializer(Post.objects.all(), many=True).data
         response = self.user.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, serializer)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)  # type: ignore # noqa: E501
+        self.assertEqual(response.data, serializer)  # type: ignore # noqa: E501
 
     def test_get_some_post(self):
         """Запрос поста по id."""
-        url = f'/api/posts/{self.p.id}/'
-        serializer = PostSerializer(Post.objects.get(id=self.p.id)).data
+        url = f'/api/posts/{self.p.id}/'  # type: ignore
+        serializer = PostSerializer(Post.objects.get(id=self.p.id)).data  # type: ignore # noqa: E501
         response = self.user.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, serializer)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)  # type: ignore # noqa: E501
+        self.assertEqual(response.data, serializer)  # type: ignore # noqa: E501
 
     def test_get_my_posts(self):
         """Запрос своих постов."""
@@ -164,48 +176,48 @@ class APIPostTests(APITestCase):
             Post.objects.filter(author=self.u), many=True
         ).data
         response = self.user.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, serializer)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)  # type: ignore # noqa: E501
+        self.assertEqual(response.data, serializer)  # type: ignore # noqa: E501
 
     def test_update_post(self):
         """Обновление данных поста."""
-        url = f'/api/posts/{self.p.id}/'
+        url = f'/api/posts/{self.p.id}/'  # type: ignore
         data_author = {"text": "updated text"}
         data_other = {"text": "text of other user"}
         response = self.client.post(url, data_author)
         response_author = self.user.patch(url, data_author)
-        serializer_author = PostSerializer(Post.objects.get(id=self.p.id)).data
+        serializer_author = PostSerializer(Post.objects.get(id=self.p.id)).data  # type: ignore # noqa: E501
         response_other = self.other.patch(url, data_other)
-        serializer_other = PostSerializer(Post.objects.get(id=self.p.id)).data
+        serializer_other = PostSerializer(Post.objects.get(id=self.p.id)).data  # type: ignore # noqa: E501
         # Response of anonym client
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         # Request of authenticated author the post
-        self.assertEqual(response_author.status_code, status.HTTP_200_OK)
+        self.assertEqual(response_author.status_code, status.HTTP_200_OK)  # type: ignore # noqa: E501
         self.assertEqual(serializer_author['text'], data_author['text'])
         # Request of authenticated other user
-        self.assertEqual(response_other.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response_other.status_code, status.HTTP_403_FORBIDDEN)  # type: ignore # noqa: E501
         self.assertNotEqual(serializer_other['text'], data_other['text'])
 
     def test_delete_post(self):
         """Удаление поста."""
-        url = f'/api/posts/{self.p.id}/'
+        url = f'/api/posts/{self.p.id}/'  # type: ignore
         var = {"published": "published", "hidden": "hidden"}
         response = self.client.delete(url)
-        serializer = PostSerializer(Post.objects.get(id=self.p.id)).data
+        serializer = PostSerializer(Post.objects.get(id=self.p.id)).data  # type: ignore # noqa: E501
         response_other = self.other.delete(url)
-        serializer_other = PostSerializer(Post.objects.get(id=self.p.id)).data
+        serializer_other = PostSerializer(Post.objects.get(id=self.p.id)).data  # type: ignore # noqa: E501
         response_author = self.user.delete(url)
-        serializer_author = PostSerializer(Post.objects.get(id=self.p.id)).data
+        serializer_author = PostSerializer(Post.objects.get(id=self.p.id)).data  # type: ignore # noqa: E501
         # Request of anonym client
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(serializer['status'], var['published'])
         # Request of author the post
         self.assertEqual(
-            response_author.status_code, status.HTTP_204_NO_CONTENT
+            response_author.status_code, status.HTTP_204_NO_CONTENT  # type: ignore # noqa: E501
         )
         self.assertEqual(serializer_author['status'], var['hidden'])
         # Request of other user
-        self.assertEqual(response_other.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response_other.status_code, status.HTTP_403_FORBIDDEN)  # type: ignore # noqa: E501
         self.assertEqual(serializer_other['status'], var['published'])
 
     def test_filter_for_posts_by_status(self):
@@ -222,10 +234,10 @@ class APIPostTests(APITestCase):
         ).data
         response_p = self.user.get(url_p)
         response_h = self.user.get(url_h)
-        self.assertEqual(response_p.status_code, status.HTTP_200_OK)
-        self.assertEqual(response_h.status_code, status.HTTP_200_OK)
-        self.assertEqual(response_p.data, serializer_p)
-        self.assertEqual(response_h.data, serializer_h)
+        self.assertEqual(response_p.status_code, status.HTTP_200_OK)  # type: ignore # noqa: E501
+        self.assertEqual(response_h.status_code, status.HTTP_200_OK)  # type: ignore # noqa: E501
+        self.assertEqual(response_p.data, serializer_p)  # type: ignore # noqa: E501
+        self.assertEqual(response_h.data, serializer_h)  # type: ignore # noqa: E501
 
     def test_filter_for_posts_by_author(self):
         """Фильтрация постов по автору."""
@@ -234,8 +246,8 @@ class APIPostTests(APITestCase):
             Post.objects.filter(author=self.u).order_by('-created'), many=True
         ).data
         response = self.user.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, serializer)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)  # type: ignore # noqa: E501
+        self.assertEqual(response.data, serializer)  # type: ignore # noqa: E501
 
     def test_search_for_post_by_title(self):
         """Поиск постов по заголовку."""
@@ -247,8 +259,8 @@ class APIPostTests(APITestCase):
             many=True,
         ).data
         response = self.user.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, serializer)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)  # type: ignore # noqa: E501
+        self.assertEqual(response.data, serializer)  # type: ignore # noqa: E501
 
     def test_search_for_posts_by_text(self):
         """Поиск постов по тексту."""
@@ -260,8 +272,8 @@ class APIPostTests(APITestCase):
             many=True,
         ).data
         response = self.user.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, serializer)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)  # type: ignore # noqa: E501
+        self.assertEqual(response.data, serializer)  # type: ignore # noqa: E501
 
     def test_search_for_posts_by_created(self):
         """Поиск постов по дате создания."""
@@ -273,8 +285,8 @@ class APIPostTests(APITestCase):
             many=True,
         ).data
         response = self.user.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, serializer)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)  # type: ignore # noqa: E501
+        self.assertEqual(response.data, serializer)  # type: ignore # noqa: E501
 
     def test_order_by_for_posts_by_created(self):
         """Группировка постов по дате создания."""
@@ -283,15 +295,15 @@ class APIPostTests(APITestCase):
             Post.objects.order_by('-created'), many=True
         ).data
         response = self.user.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, serializer)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)  # type: ignore # noqa: E501
+        self.assertEqual(response.data, serializer)  # type: ignore # noqa: E501
 
     def test_of_comments_the_post(self):
         """Запрос комментариев конкретного поста."""
-        url = f'/api/posts/{self.p.id}/comments/'
+        url = f'/api/posts/{self.p.id}/comments/'  # type: ignore # noqa: E501
         response = self.user.get(url)
         serialiser = CommentSerialiser(
             Comment.objects.filter(post=self.p).order_by('-created'), many=True
         ).data
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, serialiser)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)  # type: ignore # noqa: E501
+        self.assertEqual(response.data, serialiser)  # type: ignore # noqa: E501
